@@ -8,7 +8,10 @@ from webdriver_manager.chrome import ChromeDriverManager
 from datetime import datetime
 import time
 import pandas as pd
-import random
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Function to compare responses
 def compare_responses(expected_response, actual_response):
@@ -21,15 +24,15 @@ def evaluate_results(results):
         question, expected, actual, passed = result
         if not passed:
             overall_passed = False
-            print(f"Test Failed for Question: {question}")
-            print(f"Expected Response: {expected}")
-            print(f"Actual Response: {actual}")
-            print("-" * 50)
+            logging.info(f"Test Failed for Question: {question}")
+            logging.info(f"Expected Response: {expected}")
+            logging.info(f"Actual Response: {actual}")
+            logging.info("-" * 50)
     
     if overall_passed:
-        print("Overall Test Result: All tests passed.")
+        logging.info("Overall Test Result: All tests passed.")
     else:
-        print("Overall Test Result: Some tests failed.")
+        logging.info("Overall Test Result: Some tests failed.")
 
 # Function to save results to an Excel file
 def save_results_to_excel(filename, results):
@@ -51,8 +54,8 @@ def save_results_to_excel(filename, results):
     
     # Set the column widths.
     worksheet.set_column('A:A', 30)  # Question column
-    worksheet.set_column('B:B', 40)  # Expected Response column
-    worksheet.set_column('C:C', 40)  # Actual Response column
+    worksheet.set_column('B:B', 80)  # Expected Response column
+    worksheet.set_column('C:C', 80)  # Actual Response column
     worksheet.set_column('D:D', 15)  # Test Result column
     
     # Apply the formats to the test results.
@@ -64,7 +67,7 @@ def save_results_to_excel(filename, results):
     
     # Close the Pandas Excel writer and output the Excel file.
     writer.close()
-    print(f"Results have been saved to {filename}")
+    logging.info(f"Results have been saved to {filename}")
 
 # Function to fetch the latest response
 def get_latest_response(driver):
@@ -103,11 +106,11 @@ def automate_chat_testing(driver, questions, expected_responses):
         results.append((question, expected_response, actual_response, passed))
 
         # Print the results
-        print(f"Question: {question}")
-        print(f"Expected Response: {expected_response}")
-        print(f"Actual Response: {actual_response}")
-        print(f"Test {'Passed' if passed else 'Failed'}")
-        print("-" * 50)
+        logging.info(f"Question: {question}")
+        logging.info(f"Expected Response: {expected_response}")
+        logging.info(f"Actual Response: {actual_response}")
+        logging.info(f"Test {'Passed' if passed else 'Failed'}")
+        logging.info("-" * 50)
     
     return results
 
@@ -119,13 +122,62 @@ def automate_registration(driver, greetingmsg, name, email, phone):
     return results
 
 def talkToAgent(driver, talkByButtonOrChat):
-    talkByButtonOrChat = talkByButtonOrChat.tolower()
-    questions = ["talk to an agent"]
-    expected_responses = ["Please standby while I am connecting with one of our live Agent"]
-    if talkByButtonOrChat == "chat":
-        results = automate_registration(driver, "hi", "Mohamad", "test@example.com", "2315325412") and automate_chat_testing(driver, questions, expected_responses)
-    else:
-        results = automate_registration(driver, "hi", "Mohamad", "test@example.com", "2315325412d")
+    # Complete the registration process first
+    registration_results = automate_registration(driver, "hi", "Mohamad", "test@example.com", "2315325412")
+    
+    # Add a short wait after registration to ensure all elements have loaded
+    time.sleep(5)
+    
+    if talkByButtonOrChat == "button":
+        try:
+            # Wait until the chatbot container is visible and interact with it
+            WebDriverWait(driver, 10).until(
+                EC.visibility_of_element_located((By.CLASS_NAME, "chatbot-container"))
+            )
+
+            # Find the "Talk To Agent" button by its text
+            talk_to_agent_button = WebDriverWait(driver, 10).until(
+                EC.visibility_of_element_located((By.XPATH, "//button[contains(., 'Talk To Agent')]"))
+            )
+            
+            # Click the "Talk To Agent" button
+            talk_to_agent_button.click()
+            
+            # Wait for the response after clicking the button
+            time.sleep(5)
+            latest_response = get_latest_response(driver)
+            logging.info(f"Latest response: {latest_response}")
+            
+            # Expected response after clicking the button
+            expected_response = "Please standby while I am connecting with one of our live Agent"
+            result = compare_responses(expected_response, latest_response)
+            
+            # Store the result
+            results = registration_results
+            results.append(("Talk To Agent", expected_response, latest_response, result))
+            
+            return results
+        
+        except Exception as e:
+            # Capture screenshot on error
+            driver.save_screenshot("error_click_attempt.png")
+            logging.info("Screenshot captured: error_click_attempt.png")
+            
+            logging.error(f"Error occurred while trying to click the 'Talk To Agent' button: {e}")
+            logging.error("Full stack trace:", exc_info=True)
+            
+            # Add to results that the button was not found or clickable
+            results = registration_results
+            results.append(("Talk To Agent", "Button not found or clickable", str(e), False))
+            
+            return results
+    
+    elif talkByButtonOrChat == "chat":
+        # Use chat input to request talking to an agent
+        results = automate_chat_testing(driver, ["talk to agent"], ["Please standby while I am connecting with one of our live Agent"])
+        # Combine with registration results
+        combined_results = registration_results + results
+        return combined_results
 
 # Initialize WebDriver
 service = Service(ChromeDriverManager().install())
@@ -153,12 +205,8 @@ chat_input = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.CSS_SELECTOR, "input[placeholder='Type your message...']"))
 )
 
-# Lists of questions and expected responses
-questions = ["talk to an agent"]
-expected_responses = ["Please standby while I am connecting with one of our live Agent"]
-
-# Combine results
-results = automate_registration(driver, "HELLO", "Mohamad", "test@example.com", "2315325412") and automate_chat_testing(driver, questions, expected_responses)
+# Automate "Talk To Agent"
+results = talkToAgent(driver, "button")  # or "chat" to test the chat input method
 
 # Evaluate overall results
 evaluate_results(results)
