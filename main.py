@@ -122,8 +122,10 @@ def automate_registration(driver, greetingmsg, name, email, phone):
     return results
 
 def talkToAgent(driver, talkByButtonOrChat):
+    logging.info("Registering...")
     # Complete the registration process first
     registration_results = automate_registration(driver, "hi", "Mohamad", "test@example.com", "2315325412")
+    logging.info("Register procces is done")
     
     # Add a short wait after registration to ensure all elements have loaded
     time.sleep(5)
@@ -160,8 +162,8 @@ def talkToAgent(driver, talkByButtonOrChat):
         
         except Exception as e:
             # Capture screenshot on error
-            driver.save_screenshot("error_click_attempt.png")
-            logging.info("Screenshot captured: error_click_attempt.png")
+            # driver.save_screenshot("error_click_attempt.png")
+            # logging.info("Screenshot captured: error_click_attempt.png")
             
             logging.error(f"Error occurred while trying to click the 'Talk To Agent' button: {e}")
             logging.error("Full stack trace:", exc_info=True)
@@ -178,6 +180,137 @@ def talkToAgent(driver, talkByButtonOrChat):
         # Combine with registration results
         combined_results = registration_results + results
         return combined_results
+    
+def loginAsAgent(driver, uatEmail, uatPassword, awsUsername, awsPassword):
+    try:
+        # Store the current window handle
+        initial_window = driver.current_window_handle
+        logging.info(f"Initial window handle: {initial_window}")
+
+        # Open a new tab and navigate to the login page
+        driver.execute_script("window.open('https://uat.thinglogixce.app');")
+        logging.info("Opened a new tab with the login page")
+
+        # Switch to the new tab (uat.thinglogixce.app)
+        driver.switch_to.window(driver.window_handles[1])
+
+        # Wait for the first login form to load and input credentials
+        WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.ID, "username"))
+        )
+        driver.find_element(By.ID, "username").send_keys(uatEmail)
+        driver.find_element(By.ID, "password").send_keys(uatPassword)
+        driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
+        logging.info("Entered first set of credentials and clicked submit")
+
+        time.sleep(20)
+
+        # Open another new tab
+        driver.execute_script("window.open('');")
+        logging.info("Opened another new tab")
+
+        # Switch to the new tab
+        driver.switch_to.window(driver.window_handles[2])
+
+        # Navigate to the specified URL in the new tab
+        driver.get("https://thinglogixce-new.awsapps.com/auth/?client_id=e5d4030c01266747&redirect_uri=https%3A%2F%2Fthinglogixce-new.my.connect.aws%2Fauth%2Fcode%3Fdestination%3D%252Fccp-v2%252F&state=wMjrRvhUw2n3lAZL0s_Vjl14SyAZuCYdsWyRoV-nKLwTm61MLbfV4bZ67RtZ6A5ZDjWAS3jQy5bA_G1R_WMvnA")
+        
+        # Wait for the login form to appear and input credentials
+        WebDriverWait(driver, 60).until(
+            EC.visibility_of_element_located((By.ID, "wdc_username"))
+        )
+        driver.find_element(By.ID, "wdc_username").send_keys(awsUsername)
+        driver.find_element(By.ID, "wdc_password").send_keys(awsPassword)
+        driver.find_element(By.ID, "wdc_login_button").click()
+        logging.info("Entered credentials and clicked login in the new tab")
+        time.sleep(10)
+
+        # Switch back to the uat.thinglogixce.app tab
+        driver.switch_to.window(driver.window_handles[1])
+        logging.info("Switched back to the uat.thinglogixce.app tab")
+
+        # Refresh the uat.thinglogixce.app tab
+        driver.refresh()
+        logging.info("Page refreshed")
+        time.sleep(5)
+
+        # Close the second tab (thinglogixce-new)
+        driver.switch_to.window(driver.window_handles[2])
+        driver.close()
+        logging.info("Closed the second tab")
+
+        # Switch back to the uat.thinglogixce.app tab to continue further actions if any
+        driver.switch_to.window(driver.window_handles[1])
+
+    except Exception as e:
+        logging.error(f"Error during loginAsAgent: {e}", exc_info=True)
+        driver.save_screenshot("login_as_agent_error.png")
+        logging.info("Screenshot captured: login_as_agent_error.png")
+    finally:
+        # Switch back to the initial window
+        driver.switch_to.window(initial_window)
+        logging.info("Switched back to the initial window")
+
+# Define the function to wait for and click the "accept call" button
+def wait_and_click_accept(driver, timeout=30):
+    try:
+        accept_button = WebDriverWait(driver, timeout).until(
+            EC.visibility_of_element_located((By.ID, 'agent-incoming-call-accept'))
+        )
+        accept_button.click()
+        results = True
+        logging.info("Accepted the call.")
+    except Exception as e:
+        results = False
+        logging.info(f"Error while accepting call: {e}")
+    return results
+
+
+# Define the function to wait for and click the "reject call" button
+def wait_and_click_reject(driver, timeout=30):
+    try:
+        reject_button = WebDriverWait(driver, timeout).until(
+            EC.visibility_of_element_located((By.ID, 'agent-incoming-call-reject'))
+        )
+        reject_button.click()
+        logging.info("Rejected the call.")
+        results = True
+    except Exception as e:
+        results = False
+        logging.info(f"Error while rejecting call: {e}")
+    return results
+
+def acceptOrReject(driver, uatUserName, uatPassWord, awsUserName, awsPassWord, TalkToAgentMethod, acceptOrreject):
+    # Login as agent
+    loginAsAgent(driver, uatUserName, uatPassWord, awsUserName, awsPassWord)
+    
+    # Switch to the chat tab
+    driver.switch_to.window(driver.window_handles[0])
+    
+    # Execute the 'talkToAgent' function on the chat page
+    talkToAgent(driver, TalkToAgentMethod)
+    
+    # Sleep for 3 seconds
+    time.sleep(3)
+
+    # Switch back to the chat tab
+    driver.switch_to.window(driver.window_handles[1])
+
+    time.sleep(5)
+    
+    if acceptOrreject == "accept":
+        # Wait for and click the "accept call" button
+        results = wait_and_click_accept(driver)
+    elif acceptOrreject == "reject":
+        # If you need to wait and click the "reject call" button instead, use:
+        results = wait_and_click_reject(driver)
+    elif acceptOrReject == "both":
+        logging.info("Rejecting the call")
+        results = wait_and_click_reject(driver)
+        time.sleep(10)
+        logging.info("Accepting the call")
+        results = wait_and_click_accept(driver)
+    return results
 
 # Initialize WebDriver
 service = Service(ChromeDriverManager().install())
@@ -206,11 +339,12 @@ chat_input = WebDriverWait(driver, 30).until(
 )
 
 # Automate "Talk To Agent"
-results = talkToAgent(driver, "button")  # or "chat" to test the chat input method
+# results = talkToAgent(driver, "button")  # or "chat" to test the chat input method
 
 # Evaluate overall results
-evaluate_results(results)
+# evaluate_results(results)
 
+time.sleep(100)
 # Save results to an Excel file
 currentDate = datetime.now()
 formatted_date_time = currentDate.strftime("%d-%m %I.%M%p").lower()
