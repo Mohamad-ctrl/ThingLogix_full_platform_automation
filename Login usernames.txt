@@ -1,0 +1,18 @@
+Thinglogixce PROD ENV:-
+https://demo.thinglogixce.app
+
+Admin role: rida@thinglogix.com / Rida@123
+Agent Role: jatin@thinglogix.com / Jatin@123
+AWS Connect Access (Chat Agent): subhash / Subhash@123
+Chat Supervisor UAT: rida+4@thinglogix.com / 123
+
+Thinglogixce UAT:-
+https://uat.thinglogixce.app
+
+Super Admin: rida+3@thinglogix.com / 123
+Agent: rida@thinglogix.com / 123
+(AWS Connect test-uat / Test@123)
+UAT Chatbot Admin: subhash+chatbotadmin@thinglogix.com / subhash@123
+
+maria+uat@thinglogix.com
+MZ@12345

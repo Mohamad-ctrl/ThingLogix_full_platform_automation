@@ -17,13 +17,13 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Ending of this: loged in as admin in uat page: 1
 def validate_survey(driver, adminEmail, adminPassword, firstRating, secondRating, thirdRating):
-    utils.automate_registration(driver, "hi", "Mohamad", "test@example.com", "02341823945")
-    utils.talkToAgent(driver, "button")
-    driver.switch_to.window(driver.window_handles[1])
-    time.sleep(10)
-    utils.acceptOrReject(driver, "accept")
-    time.sleep(10)
-    utils.end_agent_chat(driver)
+    # utils.automate_registration(driver, "hi", "Mohamad", "test@example.com", "02341823945")
+    # utils.talkToAgent(driver, "button")
+    # driver.switch_to.window(driver.window_handles[1])
+    # time.sleep(10)
+    # utils.acceptOrReject(driver, "accept")
+    # time.sleep(10)
+    # utils.end_agent_chat(driver)
     driver.switch_to.window(driver.window_handles[0])
     time.sleep(3)
     # auth.rateAgent(driver)

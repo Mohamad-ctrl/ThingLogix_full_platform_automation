@@ -89,3 +89,7 @@ def export_csv_reports(driver):
 def go_to_canned_messages(driver):
     logging.info("going to the canned messages page")
     driver.get("https://uat.thinglogixce.app/home/chats/agent/canned-messages/list")
+
+def go_to_helpdesk(driver):
+    logging.info("going to Helpdesk section")
+    driver.get("https://uat.thinglogixce.app/home/chats/agent/helpdesk/list")

@@ -14,6 +14,7 @@ import utils
 import reports
 import navigate
 import canned_messages
+import helpdesk
 
 
 # Configure logging
@@ -57,6 +58,11 @@ def live_chat(driver, Regname, RegEmai, RegPhone, uatUserName, uatPassWord, awsU
 
     # agent uat tab[1]
     auth.loginAsAgent(driver, uatUserName, uatPassWord, awsUserName, awsPassWord, awsURL)
+    # Switching back to the chat tab[1]]
+    driver.switch_to.window(driver.window_handles[1])
+    time.sleep(5)
+    utils.set_agent_as_avalible(driver)
+    time.sleep(5)
     # Switching back to the chat tab[0]
     driver.switch_to.window(driver.window_handles[0])
 
@@ -152,12 +158,12 @@ def live_chat(driver, Regname, RegEmai, RegPhone, uatUserName, uatPassWord, awsU
 def reports_tests(driver, uatAgentEmail, uatAgentPassword, awsUsername, awsPassword, awsLink, adminEmail, adminPassword, firstRate, secondRate, thirdRate):
     results = []
     
-    auth.loginAsAgent(driver, uatAgentEmail, uatAgentPassword, awsUsername, awsPassword, awsLink)
-    time.sleep(15)
-    driver.switch_to.window(driver.window_handles[1])
-    utils.set_agent_as_avalible(driver)
-    time.sleep(10)
-    driver.switch_to.window(driver.window_handles[0])
+    # auth.loginAsAgent(driver, uatAgentEmail, uatAgentPassword, awsUsername, awsPassword, awsLink)
+    # time.sleep(15)
+    # driver.switch_to.window(driver.window_handles[1])
+    # utils.set_agent_as_avalible(driver)
+    # time.sleep(10)
+    # driver.switch_to.window(driver.window_handles[0])
     
     # Validate Survey Test
     survey_result = reports.validate_survey(driver, adminEmail, adminPassword, firstRate, secondRate, thirdRate)
@@ -191,9 +197,9 @@ def reports_tests(driver, uatAgentEmail, uatAgentPassword, awsUsername, awsPassw
 
 def cannedMessages(driver, caseName, reply, newReply, newCaseName, adminEmail, adminPassword):
     results = []
-    logging.info("Logging in as admin")
-    auth.loginAsAdmin(driver, adminEmail, adminPassword)
-    time.sleep(15)
+    # logging.info("Logging in as admin")
+    # auth.loginAsAdmin(driver, adminEmail, adminPassword)
+    # time.sleep(15)
     navigate.go_to_canned_messages(driver)
     time.sleep(15)
     logging.info("Creating a canned message")
@@ -249,25 +255,33 @@ chat_button.click()
 time.sleep(5)
 
 
-
-# file_path = "C:\\Users\\Mohamad\\Desktop\\login_as_agent_error.png"
-# awsLink = "https://thinglogixce-new.awsapps.com/auth/?client_id=e5d4030c01266747&redirect_uri=https%3A%2F%2Fthinglogixce-new.my.connect.aws%2Fauth%2Fcode%3Fdestination%3D%252Fccp-v2%252F&state=wMjrRvhUw2n3lAZL0s_Vjl14SyAZuCYdsWyRoV-nKLwTm61MLbfV4bZ67RtZ6A5ZDjWAS3jQy5bA_G1R_WMvnA"
-# overall_result, result_file = live_chat(driver, "Mohamad", "test@example.com", "02341823945", "rida@thinglogix.com", "123", "test-uat", "Test@123", awsLink, file_path, "Test Description")
-# print(f"Overall Result: {overall_result}")
-# print(f"Test results saved to: {result_file}")
+# Live Chat tests
+file_path = "C:\\Users\\Mohamad\\Desktop\\login_as_agent_error.png"
+awsLink = "https://thinglogixce-new.awsapps.com/auth/?client_id=e5d4030c01266747&redirect_uri=https%3A%2F%2Fthinglogixce-new.my.connect.aws%2Fauth%2Fcode%3Fdestination%3D%252Fccp-v2%252F&state=wMjrRvhUw2n3lAZL0s_Vjl14SyAZuCYdsWyRoV-nKLwTm61MLbfV4bZ67RtZ6A5ZDjWAS3jQy5bA_G1R_WMvnA"
+overall_result, result_file = live_chat(driver, "Mohamad", "test@example.com", "02341823945", "rida@thinglogix.com", "123", "test-uat", "Test@123", awsLink, file_path, "Test Description")
+print(f"Overall Result: {overall_result}")
+print(f"Test results saved to: {result_file}")
 
 
 # Reports tests
-# awsLink = "https://thinglogixce-new.awsapps.com/auth/?client_id=e5d4030c01266747&redirect_uri=https%3A%2F%2Fthinglogixce-new.my.connect.aws%2Fauth%2Fcode%3Fdestination%3D%252Fccp-v2%252F&state=wMjrRvhUw2n3lAZL0s_Vjl14SyAZuCYdsWyRoV-nKLwTm61MLbfV4bZ67RtZ6A5ZDjWAS3jQy5bA_G1R_WMvnA"
-# result_file = reports_tests(driver, "rida@thinglogix.com", "123", "test-uat", "Test@123", awsLink, "maria+uat@thinglogix.com", "MZ@12345", "3", "5", "3")
-# print(f"Test results saved to: {result_file}")
+awsLink = "https://thinglogixce-new.awsapps.com/auth/?client_id=e5d4030c01266747&redirect_uri=https%3A%2F%2Fthinglogixce-new.my.connect.aws%2Fauth%2Fcode%3Fdestination%3D%252Fccp-v2%252F&state=wMjrRvhUw2n3lAZL0s_Vjl14SyAZuCYdsWyRoV-nKLwTm61MLbfV4bZ67RtZ6A5ZDjWAS3jQy5bA_G1R_WMvnA"
+result_file = reports_tests(driver, "rida@thinglogix.com", "123", "test-uat", "Test@123", awsLink, "maria+uat@thinglogix.com", "MZ@12345", "3", "5", "3")
+print(f"Test results saved to: {result_file}")
 
-#Canned messages
+# Canned messages tests
 replyT = "Test Reply"
 caseNameT = "Test Case Name"
 newReplyT = "New test reply"
 newCaseNameT = "New case name"
 result_file = cannedMessages(driver, caseNameT, replyT, newReplyT, newCaseNameT, "maria+uat@thinglogix.com", "MZ@12345")
 print(f"Test results saved to: {result_file}")
+
+# Helpdesk Tests
+# auth.loginAsAdmin(driver, "maria+uat@thinglogix.com", "MZ@12345")
+# time.sleep(10)
+# navigate.go_to_helpdesk(driver)
+# time.sleep(10)
+# helpdesk.check_message_in_web(driver, "Test ticked 000111", "test desc", "open")
+
 time.sleep(3000)
 driver.quit()
