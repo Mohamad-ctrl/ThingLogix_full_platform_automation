@@ -52,7 +52,7 @@ def loginAsAgent(driver, uatEmail, uatPassword, awsUsername, awsPassword, awsURL
         driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
         logging.info("Entered first set of credentials and clicked submit")
 
-        time.sleep(25)
+        time.sleep(30)
 
         # Open another new tab
         driver.execute_script("window.open('');")

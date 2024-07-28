@@ -208,8 +208,8 @@ def send_attachment_as_agent(driver, file_path):
     except Exception as e:
         logging.error(f"Error while sending attachment: {e}", exc_info=True)
         return "Fail", {
-            "Action": "Send Attachment",
-            "Passed": False,
+            "Test Name": "Send Attachment",
+            "Test Results": "Failed",
             "Error": str(e)
         }
     
@@ -475,3 +475,63 @@ def set_agent_as_avalible(driver):
     time.sleep(3)
     avalibleBtn = driver.find_element(By.XPATH, "/html/body/div[4]/div[3]/div/div/div/button[1]")
     avalibleBtn.click()
+
+def select_radio_button(driver, value):
+    radio_button_xpath = f"//input[@type='radio' and @value='{value}']"
+    radio_button = WebDriverWait(driver, 30).until(
+        EC.element_to_be_clickable((By.XPATH, radio_button_xpath))
+    )
+    radio_button.click()
+
+def select_dropdown_option(driver, formcontrolname, option_value, screenshot_name='option_not_found.png'):
+    try:
+        # Construct the dropdown and option XPaths
+        dropdown_xpath = f"//mat-select[@formcontrolname='{formcontrolname}']"
+        option_xpath = f"//mat-option[.//span[text()='{option_value}']]"
+        
+        # Wait for the dropdown to be clickable and click it
+        dropdown = WebDriverWait(driver, 30).until(
+            EC.element_to_be_clickable((By.XPATH, dropdown_xpath))
+        )
+        dropdown.click()
+        
+        # Wait for the option to be clickable and click it
+        option = WebDriverWait(driver, 30).until(
+            EC.element_to_be_clickable((By.XPATH, option_xpath))
+        )
+        driver.execute_script("arguments[0].scrollIntoView();", option)
+        option.click()
+    except Exception as e:
+        logging.error(f"Option not found: {e}")
+        driver.save_screenshot(screenshot_name)
+        raise
+
+def set_date(driver, formcontrolname_value, date_value):
+    try:
+        logging.info(f"Setting date {date_value} for input with formcontrolname {formcontrolname_value}")
+        date_input_xpath = f"//input[@formcontrolname='{formcontrolname_value}']"
+        date_input = WebDriverWait(driver, 30).until(
+            EC.visibility_of_element_located((By.XPATH, date_input_xpath))
+        )
+        date_input.clear()
+        date_input.send_keys(date_value)
+    except Exception as e:
+        logging.error(f"Date input setting failed: {e}")
+        driver.save_screenshot('date_input_setting_failed.png')
+        raise
+
+def set_time(driver, formcontrolname_value, time_value):
+    try:
+        logging.info(f"Setting time {time_value} for input with formcontrolname {formcontrolname_value}")
+        timeSp = time_value.split()
+        time_input_xpath = f"//input[@formcontrolname='{formcontrolname_value}']"
+        time_input = WebDriverWait(driver, 30).until(
+            EC.visibility_of_element_located((By.XPATH, time_input_xpath))
+        )
+        time_input.clear()
+        time_input.send_keys(timeSp[0])
+        time_input.send_keys(timeSp[1])
+    except Exception as e:
+        logging.error(f"Time input setting failed: {e}")
+        driver.save_screenshot('time_input_setting_failed.png')
+        raise

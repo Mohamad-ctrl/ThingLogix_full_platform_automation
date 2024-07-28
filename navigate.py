@@ -8,7 +8,7 @@ import os
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-download_dir = "C:\\Users\\Mohamad\\Downloads"
+download_dir = "C:\\Users\\Mohammad\\Downloads"
 
 def go_to_reports(driver, section = "defult"):
     try:
@@ -93,3 +93,7 @@ def go_to_canned_messages(driver):
 def go_to_helpdesk(driver):
     logging.info("going to Helpdesk section")
     driver.get("https://uat.thinglogixce.app/home/chats/agent/helpdesk/list")
+
+def go_to_channels(driver):
+    logging.info("going to go_to_channels section")
+    driver.get("https://uat.thinglogixce.app/home/engagement/communication/channels")

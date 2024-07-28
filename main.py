@@ -5,6 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from datetime import datetime
+import openpyxl
 import time
 import pandas as pd
 import logging
@@ -15,6 +16,7 @@ import reports
 import navigate
 import canned_messages
 import helpdesk
+import engagement
 
 
 # Configure logging
@@ -48,6 +50,10 @@ def save_canned_megs_results(results, writer):
     df = pd.DataFrame(results)
     df.to_excel(writer, sheet_name='Canned Messages Results', index=False)
 
+def save_help_desk_tests_results(results, writer):
+    df = pd.DataFrame(results)
+    df.to_excel(writer, sheet_name='Helpdesk Results', index=False)
+
 # Main function to run the live chat tests
 def live_chat(driver, Regname, RegEmai, RegPhone, uatUserName, uatPassWord, awsUserName, awsPassWord, awsURL, file_path, description):
     chat_results = []
@@ -60,7 +66,7 @@ def live_chat(driver, Regname, RegEmai, RegPhone, uatUserName, uatPassWord, awsU
     auth.loginAsAgent(driver, uatUserName, uatPassWord, awsUserName, awsPassWord, awsURL)
     # Switching back to the chat tab[1]]
     driver.switch_to.window(driver.window_handles[1])
-    time.sleep(5)
+    time.sleep(10)
     utils.set_agent_as_avalible(driver)
     time.sleep(5)
     # Switching back to the chat tab[0]
@@ -233,8 +239,54 @@ def cannedMessages(driver, caseName, reply, newReply, newCaseName, adminEmail, a
 
     return result_file
 
+def helpDiskTests(driver):
+    results = []
+    ticketSub = "Test ticked 000111"
+    ticketDes = "test desc"
+    logging.info("Running the helpdesk tests")
+    # auth.loginAsAdmin(driver, "maria+uat@thinglogix.com", "MZ@12345")
+    # logging.info("Logged in as an admin")
+    # time.sleep(10)
+    logging.info("Going to the helpdesk section in the website")
+    navigate.go_to_helpdesk(driver)
+    time.sleep(10)
+    logging.info("Switching to the chat bot tab")
+    driver.switch_to.window(driver.window_handles[0])
+    logging.info("running the creating ticket test")
+    creating_ticket_res = helpdesk.create_ticket_through_chatbot(driver, "chat", ticketSub, ticketDes)
+    results.append(creating_ticket_res)
+    logging.info("creating ticket test is done")
+    time.sleep(15)
+    logging.info("validating the ticket creation")
+    validating_ticket_creation = helpdesk.check_message_in_web(driver, ticketSub, ticketDes, "open")
+    results.append(validating_ticket_creation)
+    logging.info("validation finished")
+    time.sleep(10)
+    logging.info("Testing deleting ticket")
+    del_res = helpdesk.del_msg(driver, ticketSub)
+    results.append(del_res)
+    logging.info("All tests are finshed")
+    currentDate = datetime.now()
+    
+    # Format the date and time
+    formatted_date_time = currentDate.strftime("%d-%m_%I.%M%p").lower()
+    
+    # Create the file name
+    file_name = f'help_desk_tests_results_{formatted_date_time}.xlsx'
+    
+    # Get the directory of the script
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+    
+    # Construct the full file path
+    result_file = os.path.join(script_directory, file_name)
+    
+    with pd.ExcelWriter(result_file, mode='w', engine='openpyxl') as writer:
+        save_help_desk_tests_results(results, writer)
+
+    return result_file
+
 # Initialize WebDriver
-service = Service(ChromeDriverManager().install())
+service = Service('C:/Users/Mohammad/.wdm/drivers/chromedriver/win64/127.0.6533.72/chromedriver.exe')
 driver = webdriver.Chrome(service=service)
 
 # The website URL
@@ -243,8 +295,10 @@ chat_url = "https://dqt6e7ekz6j0s.cloudfront.net/"
 # Open the website
 driver.get(chat_url)
 
+driver.maximize_window() 
+
 # Wait for the page to load and the chat button to be clickable
-chat_button = WebDriverWait(driver, 30).until(
+chat_button = WebDriverWait(driver, 30).until(  
     EC.element_to_be_clickable((By.CSS_SELECTOR, ".chatbot-toggle-icon img.ng-star-inserted"))
 )
 
@@ -256,32 +310,31 @@ time.sleep(5)
 
 
 # Live Chat tests
-file_path = "C:\\Users\\Mohamad\\Desktop\\login_as_agent_error.png"
-awsLink = "https://thinglogixce-new.awsapps.com/auth/?client_id=e5d4030c01266747&redirect_uri=https%3A%2F%2Fthinglogixce-new.my.connect.aws%2Fauth%2Fcode%3Fdestination%3D%252Fccp-v2%252F&state=wMjrRvhUw2n3lAZL0s_Vjl14SyAZuCYdsWyRoV-nKLwTm61MLbfV4bZ67RtZ6A5ZDjWAS3jQy5bA_G1R_WMvnA"
-overall_result, result_file = live_chat(driver, "Mohamad", "test@example.com", "02341823945", "rida@thinglogix.com", "123", "test-uat", "Test@123", awsLink, file_path, "Test Description")
-print(f"Overall Result: {overall_result}")
-print(f"Test results saved to: {result_file}")
+# file_path = "C:\\Users\\Mohamad\\Desktop\\login_as_agent_error.png"
+# awsLink = "https://thinglogixce-new.awsapps.com/auth/?client_id=e5d4030c01266747&redirect_uri=https%3A%2F%2Fthinglogixce-new.my.connect.aws%2Fauth%2Fcode%3Fdestination%3D%252Fccp-v2%252F&state=wMjrRvhUw2n3lAZL0s_Vjl14SyAZuCYdsWyRoV-nKLwTm61MLbfV4bZ67RtZ6A5ZDjWAS3jQy5bA_G1R_WMvnA"
+# overall_result, result_file = live_chat(driver, "Mohamad", "test@example.com", "02341823945", "rida@thinglogix.com", "123", "test-uat", "Test@123", awsLink, file_path, "Test Description")
+# print(f"Overall Result: {overall_result}")
+# print(f"Test results saved to: {result_file}")
 
 
 # Reports tests
-awsLink = "https://thinglogixce-new.awsapps.com/auth/?client_id=e5d4030c01266747&redirect_uri=https%3A%2F%2Fthinglogixce-new.my.connect.aws%2Fauth%2Fcode%3Fdestination%3D%252Fccp-v2%252F&state=wMjrRvhUw2n3lAZL0s_Vjl14SyAZuCYdsWyRoV-nKLwTm61MLbfV4bZ67RtZ6A5ZDjWAS3jQy5bA_G1R_WMvnA"
-result_file = reports_tests(driver, "rida@thinglogix.com", "123", "test-uat", "Test@123", awsLink, "maria+uat@thinglogix.com", "MZ@12345", "3", "5", "3")
-print(f"Test results saved to: {result_file}")
+# result_file = reports_tests(driver, "rida@thinglogix.com", "123", "test-uat", "Test@123", awsLink, "maria+uat@thinglogix.com", "MZ@12345", "3", "5", "3")
+# print(f"Test results saved to: {result_file}")
 
 # Canned messages tests
-replyT = "Test Reply"
-caseNameT = "Test Case Name"
-newReplyT = "New test reply"
-newCaseNameT = "New case name"
-result_file = cannedMessages(driver, caseNameT, replyT, newReplyT, newCaseNameT, "maria+uat@thinglogix.com", "MZ@12345")
-print(f"Test results saved to: {result_file}")
+# replyT = "Test Reply"
+# caseNameT = "Test Case Name"
+# newReplyT = "New test reply"
+# newCaseNameT = "New case name"
+# result_file = cannedMessages(driver, caseNameT, replyT, newReplyT, newCaseNameT, "maria+uat@thinglogix.com", "MZ@12345")
+# print(f"Test results saved to: {result_file}")
 
 # Helpdesk Tests
-# auth.loginAsAdmin(driver, "maria+uat@thinglogix.com", "MZ@12345")
-# time.sleep(10)
-# navigate.go_to_helpdesk(driver)
-# time.sleep(10)
-# helpdesk.check_message_in_web(driver, "Test ticked 000111", "test desc", "open")
+# result_file = helpDiskTests(driver)
+# print(f"Test results saved to: {result_file}")
 
+engagement.run_channels_tests(driver)
+
+    
 time.sleep(3000)
 driver.quit()
