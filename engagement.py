@@ -23,5 +23,7 @@ def run_channels_tests(driver):
     time.sleep(20)
     navigate.go_to_channels(driver)
     time.sleep(15)
-    channels.send_new_mail(driver, " test ", " rida@thinglogix.com ", "list", None, " VJ-Test ", " Hourly ", "07/28/2024", "09:58 AM", "08/08/2024", "09:06 PM")
+    # channels.send_new_mail(driver, " test ", " rida@thinglogix.com ", "list", None, " VJ-Test ", " Hourly ", "07/28/2024", "09:58 AM", "08/08/2024", "09:06 PM")
+    # channels.send_new_Whatsapp(driver, " vw_aftersales_message ", "promotional", "+971561091235", " Testing ")
+    channels.send_new_sms(driver, " Test240724 ", "promotional", "+971561091235")
     logging.info("Passed")

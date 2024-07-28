@@ -52,7 +52,7 @@ def loginAsAgent(driver, uatEmail, uatPassword, awsUsername, awsPassword, awsURL
         driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
         logging.info("Entered first set of credentials and clicked submit")
 
-        time.sleep(30)
+        time.sleep(35)
 
         # Open another new tab
         driver.execute_script("window.open('');")
@@ -72,7 +72,7 @@ def loginAsAgent(driver, uatEmail, uatPassword, awsUsername, awsPassword, awsURL
         driver.find_element(By.ID, "wdc_password").send_keys(awsPassword)
         driver.find_element(By.ID, "wdc_login_button").click()
         logging.info("Entered credentials and clicked login in the new tab")
-        time.sleep(10)
+        time.sleep(20)
 
         # Switch back to the uat.thinglogixce.app tab
         driver.switch_to.window(driver.window_handles[1])

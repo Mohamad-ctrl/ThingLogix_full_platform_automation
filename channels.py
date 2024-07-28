@@ -68,11 +68,15 @@ def send_new_Whatsapp(driver, templet, promoOrList, phoneNumber, linkSur = None,
         EC.visibility_of_element_located((By.XPATH, "/html/body/app-root/app-sidenav/mat-drawer-container/mat-drawer-content/app-engagement-landing/app-channels/div[2]/div/div[2]/button"))
     )
     send_new_msg_btn.click()
+    time.sleep(10)
     # Templet dropdown
     logging.info("Clicking the template dropdown")
     utils.select_dropdown_option(driver, "template", templet)
     # choosing promo or list
     utils.select_radio_button(driver, promoOrList)
+    # choosing the link survey if there is one
+    if linkSur != None:
+        utils.select_dropdown_option(driver, "linkSurvey", linkSur)
     if promoOrList == "promotional":
         logging.info("filling the whatsapp number field")
         phone_input_xpath = "//textarea[@formcontrolname='whatsappNumbers']"
@@ -102,3 +106,44 @@ def send_new_Whatsapp(driver, templet, promoOrList, phoneNumber, linkSur = None,
     # )
     # send_btn.click()
     
+def send_new_sms(driver, templet, promoOrList, phoneNumber = None, nameInList = None, sendTime = None, startDate = None, startTime = None, endDate = None, endTime = None):
+    # Clicking the new msg btn
+    logging.info("Lockating and clicking the New Message button")
+    send_new_sms_btn = WebDriverWait(driver, 60).until(
+        EC.visibility_of_element_located((By.XPATH, "/html/body/app-root/app-sidenav/mat-drawer-container/mat-drawer-content/app-engagement-landing/app-channels/div[2]/div/div[3]/button"))
+    )
+    send_new_sms_btn.click()
+    time.sleep(10)
+    # Templet dropdown
+    logging.info("Clicking the template dropdown")
+    utils.select_dropdown_option(driver, "template", templet)
+    # choosing promo or list
+    utils.select_radio_button(driver, promoOrList)
+    time.sleep(5)
+    if promoOrList == "promotional":
+        logging.info("selecting the promotional")
+        phone_input_xpath = "//textarea[@formcontrolname='phoneNumbers']"
+        phone_input = WebDriverWait(driver, 30).until(
+            EC.visibility_of_element_located((By.XPATH, phone_input_xpath))
+        )
+        phone_input.send_keys(phoneNumber)
+    elif promoOrList == "list":
+        logging.info("selecting the list option")
+        # selecting the choosn name in list
+        utils.select_dropdown_option(driver, "list", nameInList)
+        # selecting the time
+        utils.select_dropdown_option(driver, "frequency", sendTime)
+        if sendTime == " Once " or " Hourly ":
+            # setting the start date
+            utils.set_date(driver, "startDate", startDate)
+            # setting the start time
+            utils.set_time(driver, "startTime", startTime)
+            if sendTime == " Hourly ":
+                # setting the end date
+                utils.set_date(driver, "endDate", endDate)
+                # setting end time
+                utils.set_time(driver, "endTime", endTime)
+    # send_btn = WebDriverWait(driver, 30).until(
+    #     EC.element_to_be_clickable((By.CSS_SELECTOR, "button.tl-ce-submit[type='submit']"))
+    # )
+    # send_btn.click()
