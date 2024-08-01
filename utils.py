@@ -535,3 +535,24 @@ def set_time(driver, formcontrolname_value, time_value):
         logging.error(f"Time input setting failed: {e}")
         driver.save_screenshot('time_input_setting_failed.png')
         raise
+
+def send_input_key(driver, formcontrolname, textToSend):
+    try:
+        # Wait until the input field with the specific formcontrolname is present
+        input_field_xpath = f"//input[@formcontrolname='{formcontrolname}'] | //textarea[@formcontrolname='{formcontrolname}']"
+        input_field = WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.XPATH, input_field_xpath))
+        )
+        driver.execute_script("arguments[0].scrollIntoView();", input_field)
+        # Clear any existing text in the input field
+        input_field.clear()
+
+        # Send the specified text to the input field
+        input_field.send_keys(textToSend)
+
+        logging.info(f"Successfully sent '{textToSend}' to the input with formcontrolname '{formcontrolname}'")
+
+    except Exception as e:
+        logging.error(f"An error occurred while sending '{textToSend}' to the input with formcontrolname '{formcontrolname}': {e}")
+        driver.save_screenshot(f'send_input_key_error_{formcontrolname}.png')
+        raise

@@ -95,5 +95,21 @@ def go_to_helpdesk(driver):
     driver.get("https://uat.thinglogixce.app/home/chats/agent/helpdesk/list")
 
 def go_to_channels(driver):
-    logging.info("going to go_to_channels section")
+    logging.info("going to channels section")
     driver.get("https://uat.thinglogixce.app/home/engagement/communication/channels")
+
+def go_to_contacts(driver):
+    logging.info("going to contact section")
+    driver.get("https://uat.thinglogixce.app/home/engagement/communication/contacts")
+
+def go_to_custom_filed(driver):
+    logging.info("Going to custom filed section")
+    driver.get("https://uat.thinglogixce.app/home/engagement/communication/custom-fields")
+
+def go_to_templates(driver):
+    logging.info("Going to templates section")
+    driver.get("https://uat.thinglogixce.app/home/engagement/communication/template-list")
+
+def go_to_survey(driver):
+    logging.info("Going to the survey in the engagement")
+    driver.get("https://uat.thinglogixce.app/home/engagement/survey")

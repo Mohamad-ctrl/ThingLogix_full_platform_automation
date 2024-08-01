@@ -22,11 +22,8 @@ def save_canned_megs_results(results, writer):
     df = pd.DataFrame(results)
     df.to_excel(writer, sheet_name='Canned Messages Results', index=False)
 
-def cannedMessages(driver, caseName, reply, newReply, newCaseName, adminEmail, adminPassword):
+def cannedMessages(driver, caseName, reply, newReply, newCaseName):
     results = []
-    # logging.info("Logging in as admin")
-    # auth.loginAsAdmin(driver, adminEmail, adminPassword)
-    # time.sleep(15)
     navigate.go_to_canned_messages(driver)
     time.sleep(15)
     logging.info("Creating a canned message")

@@ -57,12 +57,16 @@ def send_new_mail(driver, templet, sender, promoOrList, email = None, nameInList
                 utils.set_date(driver, "endDate", endDate)
                 # setting end time
                 utils.set_time(driver, "endTime", endTime)
-    # send_btn = WebDriverWait(driver, 30).until(
-    #     EC.element_to_be_clickable((By.CSS_SELECTOR, "button.tl-ce-submit[type='submit']"))
-    # )
-    # send_btn.click()
+    send_btn = WebDriverWait(driver, 30).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "button[type='submit']"))
+    )
+    send_btn.click()
+    logging.info("button clicked")
+    return {"Test Name": "Sending mail message", "Sending to": f"email address: {email}", "Sending From": f"email address: {sender}", "Test Results": "Passed"}
 
-def send_new_Whatsapp(driver, templet, promoOrList, phoneNumber, linkSur = None, sendTime = None, nameInList = None, startDate = None, startTime = None, endDate = None, endTime = None):
+def send_new_Whatsapp(driver, templet = None, promoOrList = None, phoneNumber = None, linkSur = None, sendTime = None, nameInList = None, startDate = None, startTime = None, endDate = None, endTime = None):
+    if templet and promoOrList and phoneNumber and linkSur and sendTime and nameInList and startDate and startTime and endDate and endTime == None:
+        return
     logging.info("Lockating and clicking the New Message button")
     send_new_msg_btn = WebDriverWait(driver, 60).until(
         EC.visibility_of_element_located((By.XPATH, "/html/body/app-root/app-sidenav/mat-drawer-container/mat-drawer-content/app-engagement-landing/app-channels/div[2]/div/div[2]/button"))
@@ -101,12 +105,20 @@ def send_new_Whatsapp(driver, templet, promoOrList, phoneNumber, linkSur = None,
                 utils.set_date(driver, "endDate", endDate)
                 # setting end time
                 utils.set_time(driver, "endTime", endTime)
-    # send_btn = WebDriverWait(driver, 30).until(
-    #     EC.element_to_be_clickable((By.CSS_SELECTOR, "button.tl-ce-submit[type='submit']"))
-    # )
-    # send_btn.click()
+    try:
+        send_btn = WebDriverWait(driver, 30).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "button.tl-ce-submit[type='submit']"))
+        )
+        send_btn.click()
+    except Exception as e:
+        logging.info("Missing information for creating a new whatsapp message.\nPlease provide enough information to do the test")
+        return
+    time.sleep(5)
+    return {"Test Name": "Sending whatsapp message", "Sending to": f"Phone Number: {phoneNumber}", "Test Results": "Passed"}
     
-def send_new_sms(driver, templet, promoOrList, phoneNumber = None, nameInList = None, sendTime = None, startDate = None, startTime = None, endDate = None, endTime = None):
+def send_new_sms(driver, templet = None, promoOrList = None, phoneNumber = None, nameInList = None, sendTime = None, startDate = None, startTime = None, endDate = None, endTime = None):
+    if templet and promoOrList and phoneNumber and nameInList and sendTime and startDate and startTime and endDate and endTime == None:
+        return
     # Clicking the new msg btn
     logging.info("Lockating and clicking the New Message button")
     send_new_sms_btn = WebDriverWait(driver, 60).until(
@@ -147,3 +159,4 @@ def send_new_sms(driver, templet, promoOrList, phoneNumber = None, nameInList = 
     #     EC.element_to_be_clickable((By.CSS_SELECTOR, "button.tl-ce-submit[type='submit']"))
     # )
     # send_btn.click()
+    return {"Test Name": "Sending SMS message", "Sending to": f"Phone Number: {phoneNumber}", "Test Results": "Passed"}

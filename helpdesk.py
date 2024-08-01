@@ -126,7 +126,6 @@ def create_ticket_through_chatbot(driver, btnOrChat, subject, description):
             }
     else:
         logging.info("Sending the messages by chat")
-        utils.automate_registration(driver, "hi", "Mohamad", "test@example.com", "02341823945")
         time.sleep(5)
         q = ["Create a ticket", f"{subject}", f"{description}"]
         logging.info(f"questions: {q}")
@@ -142,6 +141,8 @@ def del_msg(driver, ticket_sub):
     logging.info(f"Deleting the following message : {ticket_sub}")
     try:
         driver.find_element(By.XPATH, "/html/body/app-root/app-sidenav/mat-drawer-container/mat-drawer-content/app-chats-landing/app-agents-landing/div/app-helpdesk-view-ticket/div/div[2]/div/mat-card/mat-card-content/div[1]/div/mat-card/mat-card-content/div/div[1]/div/img").click()
+        time.sleep(5)
+        driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div/mat-dialog-container/app-confirmation-dialog/div[3]/button[2]").click()
         logging.info("Message was deleted")
         return {
             "Test Name": "Delete Ticket",
