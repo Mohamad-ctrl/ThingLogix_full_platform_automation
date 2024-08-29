@@ -78,8 +78,8 @@ time.sleep(5)
 # Engagement tester
 
 # Admin login
-adminEmail = "maria+uat@thinglogix.com"
-adminPassword = "MZ@12345"
+adminEmail = ""
+adminPassword = ""
 
 # Arguments for channels new mail
 newMailTemplate = ""
